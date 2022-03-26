@@ -10,7 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 @LoadWith("load_test.properties")
 @ExtendWith({ParallelLoadExtension.class})
-public class BankingServiceLoadTest {
+public class BankingServiceLoad {
 
     @Test
     @TestMappings({
