@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import space.gavinklfong.demo.banking.models.Account;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -19,10 +18,9 @@ public class AccountCsvReaderTest {
 
     @Test
     void testAccountCsvReader() throws URISyntaxException, IOException, CsvException {
-        URL accountFileUrl = getClass().getClassLoader().getResource("accounts.csv");
-        String fullPath = Paths.get(accountFileUrl.toURI()).toFile().getAbsolutePath();
+        String fullPath = getClass().getClassLoader().getResource("accounts.csv").getPath();
 
-        Map<String, Account> accounts = AccountCsvReader.readAccopuntsFromCSV(fullPath);
+        Map<String, Account> accounts = AccountCsvReader.readAccountsFromCSV(fullPath);
         log.info("accounts: {}", accounts);
         assertThat(accounts).hasSizeGreaterThan(0);
     }

@@ -11,28 +11,31 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @UtilityClass
 public class TransactionCsvReader {
 
-    public List<Transaction> readTransactionsFromCSV(String filename) throws IOException, CsvException {
-        List<Transaction> transactions = null;
+    public Map<String, List<Transaction>> readTransactionsFromCSV(String filename) throws IOException, CsvException {
+        Map<String, List<Transaction>> transactions = null;
         try (CSVReader reader = new CSVReader(new FileReader(filename))) {
             reader.skip(1);
             transactions = reader.readAll()
                     .stream()
                     .map(TransactionCsvReader::parseFromCsvEntry)
-                    .collect(Collectors.toList());
+                    .collect(Collectors.groupingBy(Transaction::getAccountNumber));
         }
         return transactions;
     }
 
     private Transaction parseFromCsvEntry(String[] fields) {
-        if (fields.length < 2) throw new IllegalArgumentException("CSV entry has lesser than 2 fields");
+        if (fields.length < 3) throw new IllegalArgumentException("CSV entry has lesser than 3 fields");
         return Transaction.builder()
-                .transactionType(TransactionType.valueOf(fields[0]))
-                .amount(Double.parseDouble(fields[1]))
+                .accountNumber(fields[0].trim())
+                .transactionType(TransactionType.valueOf(fields[1].trim()))
+                .amount(Double.parseDouble(fields[2].trim()))
                 .build();
     }
 }

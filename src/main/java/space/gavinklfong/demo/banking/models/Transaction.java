@@ -9,6 +9,7 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(makeFinal = true, level= AccessLevel.PRIVATE)
 public class Transaction {
+    String accountNumber;
     TransactionType transactionType;
     Double amount;
 }

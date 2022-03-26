@@ -20,11 +20,10 @@ public class TransactionCsvReaderTest {
 
     @Test
     void testTransactionCsvReader() throws URISyntaxException, IOException, CsvException {
-        URL fileUrl = getClass().getClassLoader().getResource("transactions.csv");
-        String fullPath = Paths.get(fileUrl.toURI()).toFile().getAbsolutePath();
+        String fullPath = getClass().getClassLoader().getResource("transactions.csv").getPath();
 
-        List<Transaction> transactions = TransactionCsvReader.readTransactionsFromCSV(fullPath);
-        transactions.forEach(transaction -> log.info("{}", transaction));
+        Map<String, List<Transaction>> transactions = TransactionCsvReader.readTransactionsFromCSV(fullPath);
+        transactions.forEach((key, entry) -> log.info("{}", entry));
         assertThat(transactions).hasSizeGreaterThan(0);
     }
 }

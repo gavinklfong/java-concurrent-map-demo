@@ -19,7 +19,7 @@ import static java.util.Objects.isNull;
 @UtilityClass
 public class AccountCsvReader {
 
-    public Map<String, Account> readAccopuntsFromCSV(String filename) throws IOException, CsvException {
+    public Map<String, Account> readAccountsFromCSV(String filename) throws IOException, CsvException {
         Map<String, Account> accounts = null;
         try (CSVReader reader = new CSVReader(new FileReader(filename))) {
             reader.skip(1);

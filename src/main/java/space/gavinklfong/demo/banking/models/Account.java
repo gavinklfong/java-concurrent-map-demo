@@ -6,7 +6,7 @@ import lombok.experimental.FieldDefaults;
 import java.math.BigDecimal;
 
 @AllArgsConstructor
-@Builder
+@Builder(toBuilder = true)
 @Data
 @FieldDefaults(level= AccessLevel.PRIVATE)
 public class Account {
