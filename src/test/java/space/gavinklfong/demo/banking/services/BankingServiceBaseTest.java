@@ -3,8 +3,12 @@ package space.gavinklfong.demo.banking.services;
 import com.opencsv.exceptions.CsvException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.ListUtils;
+import org.jsmart.zerocode.core.domain.LoadWith;
+import org.jsmart.zerocode.jupiter.extension.ParallelLoadExtension;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import space.gavinklfong.demo.banking.models.Account;
 import space.gavinklfong.demo.banking.models.Transaction;
 import space.gavinklfong.demo.banking.models.TransactionType;
@@ -24,20 +28,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Slf4j
 public abstract class BankingServiceBaseTest {
 
-    private static final String ACCOUNT_NUMBER = "001-123456-001";
-    private static String TXNS_DATA_FILE = "";
+    private static final int THREAD_COUNT = 3;
+
+    private static Map<String, List<Transaction>> accountTransactionMap = null;
 
     protected BankingService bankingService;
 
     @BeforeAll
-    static void beforeAll() throws URISyntaxException {
-        TXNS_DATA_FILE = BankingServiceBaseTest.class.getClassLoader().getResource("transactions.csv").getPath();
+    static void beforeAll() throws URISyntaxException, IOException, CsvException {
+        String dataFile = BankingServiceBaseTest.class.getClassLoader().getResource("transactions.csv").getPath();
+        accountTransactionMap = TransactionCsvReader.readTransactionsFromCSV(dataFile);
     }
 
-    @Test
+    @RepeatedTest(10)
     void testConcurrentTransactionExecution() throws IOException, CsvException, InterruptedException {
 
-        Map<String, List<Transaction>> accountTransactionMap = TransactionCsvReader.readTransactionsFromCSV(TXNS_DATA_FILE);
         Map.Entry<String, List<Transaction>> entry = accountTransactionMap.entrySet().stream().findFirst().get();
 
         // calculate expected balance
@@ -45,9 +50,9 @@ public abstract class BankingServiceBaseTest {
         double expectedBalance = bankingService.getBalance(entry.getKey()) + transactionSum;
 
         // partition the transactions into 3 parts
-        List<List<Transaction>> transactionPartitions = ListUtils.partition(entry.getValue(), 3);
+        List<List<Transaction>> transactionPartitions = ListUtils.partition(entry.getValue(), entry.getValue().size() / THREAD_COUNT);
 
-        ExecutorService executorService = Executors.newFixedThreadPool(3);
+        ExecutorService executorService = Executors.newFixedThreadPool(THREAD_COUNT);
 
         long startTime = System.nanoTime();
         transactionPartitions.forEach(partition -> {
@@ -60,7 +65,7 @@ public abstract class BankingServiceBaseTest {
             log.warn("Thread execution timeout while await for termination");
         }
 
-        log.info("execution time: {}", (System.nanoTime() - startTime));
+        log.info("execution time: {} ms", (System.nanoTime() - startTime) / 1_000_000);
 
 
         // assert account balance
@@ -86,20 +91,6 @@ public abstract class BankingServiceBaseTest {
                 .sum();
     }
 
-    private void testTransactions(String accountNumber, List<Transaction> transactions) {
-        // calculate expected balance
-        double transactionSum = calculateTransactionSum(transactions);
-
-        double expectedBalance = bankingService.getBalance(accountNumber) + transactionSum;
-
-        // run transactions
-        transactions.forEach(bankingService::doTransaction);
-
-        // assert account balance
-        assertThat(bankingService.getBalance(accountNumber))
-                .describedAs("Check account [%s] balance should be [%d]", accountNumber, expectedBalance)
-                .isEqualTo(expectedBalance);
-    }
 
     protected Map<String, Account> initializeAccountMap() throws IOException, CsvException {
         String accountFilePath = getClass().getClassLoader().getResource("accounts.csv").getPath();

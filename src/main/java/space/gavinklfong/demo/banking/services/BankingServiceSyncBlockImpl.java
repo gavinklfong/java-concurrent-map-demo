@@ -25,16 +25,15 @@ public class BankingServiceSyncBlockImpl implements BankingService {
         if (isNull(account)) throw new RecordNotFoundException();
 
         synchronized (account) {
-            accounts.computeIfPresent(transaction.getAccountNumber(), (key, value) ->
-                    value.toBuilder()
-                            .balance(
-                                    calculateBalance(
-                                            transaction.getTransactionType(),
-                                            value.getBalance(),
-                                            transaction.getAmount())
-                            )
-                            .build()
-            );
+            accounts.computeIfPresent(transaction.getAccountNumber(), (key, value) -> {
+                value.setBalance(
+                                calculateBalance(
+                                        transaction.getTransactionType(),
+                                        value.getBalance(),
+                                        transaction.getAmount())
+                        );
+                return value;
+            });
         }
 
         return accounts.get(transaction.getAccountNumber()).getBalance();

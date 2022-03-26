@@ -26,7 +26,7 @@ const ACCOUNT_NUMBERS = ["001-123456-001"];
 const TXN_TYPES = ["DEPOSIT", "WITHDRAW"];
 
 const OUTPUT_FILE = './data/transactions.csv';
-const TOTAL_COUNT = 100000;
+const TOTAL_COUNT = 1000000;
 const AMT_LOWER_BOUND = 10;
 const AMT_UPPER_BOUND = 1000;
 
