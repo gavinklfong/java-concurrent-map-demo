@@ -5,7 +5,7 @@ This project provides a list of options on how to apply synchronization on share
 
 The demo is built based on a example banking system. Multiple threads execute deposit / withdraw transactions concurrently. With the techniques of synchronization, it shows that the system keeps a consist account balance.
 
-![Banking System Diagram](https://github.com/gavinklfong/java-concurrent-map-demo/main/blob/01-banking-system.png?raw=true)
+![Banking System Diagram](https://raw.githubusercontent.com/gavinklfong/java-concurrent-map-demo/main/blob/01-banking-system.png)
 
 The following list of synchronziation techiques is covered in this project:
 - Apply synchronization to method call 
